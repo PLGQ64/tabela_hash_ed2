@@ -2,13 +2,14 @@
 #include <math.h>
 #include <stdio.h>
 
-int tabelaIni_f = 0;
-int contador_de_colisoes = 0;
-int total_de_alunos = 0;
-
 int main(void)
 {
+    int tabelaIni_f = 0;
+    int contador_de_colisoes = 0;
+    int total_de_alunos = 0;
+    tabelaHash_t tabelaHash;
     int opt = 0;
+
     while (opt != 1) {
         printf("===========-tabela hash-===========\n");
         printf("1: sair\n");
@@ -18,11 +19,10 @@ int main(void)
         printf("5: adicionar aluno\n");
         printf("6: atualizar aluno\n");
         printf("7: remover aluno\n");
+        printf("8: apagar tabela\n");
         printf("opção: ");
         scanf("%d", &opt);
         printf("===================================\n");
-
-        tabelaHash_t tabelaHash;
 
         switch (opt) {
         case 1:
@@ -30,18 +30,8 @@ int main(void)
 
         case 2: {
             if (tabelaIni_f) {
-                int confirmacao;
-                printf("tabela ja inicializada, apagar tabela atual?\n");
-                printf ("(0-não, 1-sim) opção: ");
-                scanf(" %d", &confirmacao);
-
-                if (confirmacao == 1) {
-                    liberar_tabela(&tabelaHash);
-                    tabelaIni_f = 0;
-                } else {
-                    printf("tabela não apagada\n");
-                    break;
-                }
+                printf("tabela ja inicializada\n");
+                break;
             }
             int tamanho;
             float test = 1;
@@ -164,8 +154,16 @@ int main(void)
             break;
         }
 
+        case 8: {
+            printf("--------------\n");
+            liberar_tabela(&tabelaHash);
+            printf("tabela apagada\n");
+            printf("--------------\n");
+        }
+
         default:
             getchar();
         }
     }
+    liberar_tabela(&tabelaHash);
 }

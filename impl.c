@@ -117,6 +117,9 @@ void liberar_tabela(tabelaHash_t *tabelaHash)
         while (tabelaHash->bucket[i]) {
             no_t *aux = tabelaHash->bucket[i];
             tabelaHash->bucket[i] = tabelaHash->bucket[i]->prox;
+            free(aux->dado.nome);
+            free(aux->dado.curso);
+            free(aux->dado.periodo);
             free(aux);
         }
     }
