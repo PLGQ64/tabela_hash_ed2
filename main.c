@@ -1,6 +1,9 @@
 #include "impl.h"
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 int main(void)
 {
@@ -16,18 +19,20 @@ int main(void)
         printf("2: inicializar tabela hash\n");
         printf("3: imprimir tabela\n");
         printf("4: total de aluno e colisões\n");
-        printf("5: adicionar aluno\n");
-        printf("6: atualizar aluno\n");
-        printf("7: remover aluno\n");
-        printf("8: apagar tabela\n");
-        printf("9: alterar tamanho da tabela\n");
+        printf("5: procurar aluno\n");
+        printf("6: adicionar aluno\n");
+        printf("7: atualizar aluno\n");
+        printf("8: remover aluno\n");
+        printf("9: apagar tabela\n");
+        printf("10: alterar tamanho da tabela\n");
+        printf("11: inserir dados aleatorios\n");
         printf("opção: ");
         scanf("%d", &opt);
         printf("===================================\n");
 
         switch (opt) {
         case 1:
-            return 0;
+            break;
 
         case 2: {
             if (tabelaIni_f) {
@@ -41,7 +46,9 @@ int main(void)
                 scanf(" %d", &tamanho);
                 test = log2(tamanho) - (int)log2(tamanho);
                 if (test)
-                    printf("o log com base 2 do tamanho deve resultar em um numero inteiro\n");
+                    printf("o tamanho deve ser exponencial de 2\n");
+                if (tamanho <= 0)
+                    printf("o tamanho não pode ser negativo ou 0\n");
             }
             tabelaHash = inicializar_tabelaHash(tamanho);
             tabelaIni_f = 1;
@@ -62,6 +69,28 @@ int main(void)
         }
 
         case 5: {
+            uint32_t mat;
+            clock_t start, end;
+            printf("------------------------------\n");
+            printf("matricula do aluno:");
+            scanf("%d", &mat);
+            start = clock();
+            no_t *found = busca_aluno(mat, &tabelaHash);
+            end = clock();
+            if (!found) {
+                printf("aluno não encontrado\n");
+                printf("demorou: %lf segundos\n", ((double)(end - start)) / CLOCKS_PER_SEC);
+                break;
+            }
+            printf("nome: %s\n", found->dado.nome);
+            printf("curso: %s\n", found->dado.curso);
+            printf("periodo: %s\n\n", found->dado.periodo);
+            printf("demorou: %lf segundos\n", ((double)(end - start)) / CLOCKS_PER_SEC);
+            printf("------------------------------\n");
+            break;
+        }
+
+        case 6: {
 
             if (!tabelaIni_f) {
                 printf("tabela não inicializada\n");
@@ -101,6 +130,10 @@ int main(void)
                 printf("aluno inserido\n");
                 printf("total de alunos: %d\n", ++total_de_alunos);
                 printf("-------------------------\n");
+            } else {
+               free(novo.nome);
+               free(novo.curso);
+               free(novo.periodo);
             }
             if (ret == 2) {
                 printf("-------------------------\n");
@@ -111,7 +144,7 @@ int main(void)
             break;
         }
 
-        case 6: {
+        case 7: {
             aluno_t novo;
             printf("matricula do aluno a ser atualizado: ");
             scanf("%d", &novo.mat);
@@ -139,7 +172,7 @@ int main(void)
             break;
         }
 
-        case 7: {
+        case 8: {
             if (!tabelaIni_f) {
                 printf("tabela não inicializada\n");
                 break;
@@ -160,29 +193,70 @@ int main(void)
             break;
         }
 
-        case 8: {
+        case 9: {
+            clock_t start, end;
             printf("--------------\n");
+            start = clock();
             liberar_tabela(&tabelaHash);
+            end = clock();
             printf("tabela apagada\n");
+            printf("demorou: %lf segundos\n", ((double)(end - start)) / CLOCKS_PER_SEC);
             tabelaIni_f = 0;
+            contador_de_colisoes = 0;
+            total_de_alunos = 0;
             printf("--------------\n");
             break;
         }
 
-        case 9: {
+        case 10: {
             if (!tabelaIni_f) {
                 printf("tabela não iniciada\n");
                 break;
             }
             int tam;
+            printf("--------------\n");
             printf("novo tamanho: ");
             scanf(" %d", &tam);
+            getchar();
+            if (tam <= 0) {
+                printf("tamanho não pode ser negativo ou 0\n");
+                break;
+                printf("--------------\n");
+            }
+            clock_t start, end;
+            printf("--------------\n");
+            start = clock();
             alterar_tamanho(tam, &tabelaHash);
+            end = clock();
+            printf("demorou: %lf segundos\n", ((double)(end - start)) / CLOCKS_PER_SEC);
+            printf("--------------\n");
+            break;
+        }
+
+        case 11: {
+            if (!tabelaIni_f) {
+                printf("tabela não iniciada\n");
+                break;
+            }
+            clock_t start, end;
+            int qnt;
+            printf("--------------\n");
+            printf("quantidade de elementos: ");
+            scanf("%d", &qnt);
+            getchar();
+            start = clock();
+            rand_dados(qnt, &contador_de_colisoes, &total_de_alunos, &tabelaHash);
+            end = clock();
+            printf("demorou: %lf segundos\n", ((double)(end - start)) / CLOCKS_PER_SEC);
+            printf("--------------\n");
+            break;
         }
 
         default:
             getchar();
         }
     }
-    liberar_tabela(&tabelaHash);
+    if (tabelaIni_f)
+        liberar_tabela(&tabelaHash);
+    return 0;
 }

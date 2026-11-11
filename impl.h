@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
     uint32_t mat;
@@ -33,4 +34,5 @@ void liberar_tabela(tabelaHash_t *tabelaHash);
 void amostrar_tabela(tabelaHash_t *tabelaHash);
 char *allocar_string(char *string);
 void alterar_tamanho(int tamanho, tabelaHash_t *tabela);
+void rand_dados(int num_entradas, int *colisoes, int *alunos, tabelaHash_t *tabelaHash);
 

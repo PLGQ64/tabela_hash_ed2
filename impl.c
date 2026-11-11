@@ -1,8 +1,12 @@
 #include "impl.h"
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <threads.h>
+#include <time.h>
+
 
 tabelaHash_t inicializar_tabelaHash(size_t tamanho)
 {
@@ -18,10 +22,13 @@ tabelaHash_t inicializar_tabelaHash(size_t tamanho)
 
 size_t hash(uint32_t matricula, size_t tamanho)
 {
+    // o interger overflow é intensionado;
+    // o overflow de um unsined int é definido;
+    // os nós são mais espalhados com 32 bits;
+    uint32_t temp = matricula * matricula;
+    uint32_t moverBits = ((sizeof(temp) * 8) - log2(tamanho));
     // o log é o total de bits necessario para
     // representar um indice do vetor
-    uint32_t moverBits = ((sizeof(moverBits) * 8) - log2(tamanho));
-    uint64_t temp = matricula * matricula;
     temp = (temp << (moverBits / 2)) >> moverBits;
     return temp;
 }
@@ -43,22 +50,28 @@ int inserir_aluno(aluno_t aluno, tabelaHash_t* tabelaHash)
     // retorna 1 por padrao
     int8_t ret = 1;
     size_t indice = hash(aluno.mat, tabelaHash->tamanho);
-    no_t* novo = malloc(sizeof(no_t));
     // retorna 2 para indicar que ocorreu uma colisao
     if (tabelaHash->bucket[indice])
         ret = 2;
 
-    if (!novo) {
-        perror("erro:");
-        return 0;
-    }
     if (busca_aluno(aluno.mat, tabelaHash)) {
         printf("------ info ------\n");
         printf("aluno ja presente\n");
         printf("------------------\n");
         return 0;
     }
-    novo->dado = aluno;
+
+    no_t* novo = malloc(sizeof(no_t));
+
+    if (!novo) {
+        perror("erro:");
+        return 0;
+    }
+
+    novo->dado.mat = aluno.mat;
+    novo->dado.nome = aluno.nome;
+    novo->dado.curso = aluno.curso;
+    novo->dado.periodo = aluno.periodo;
     novo->prox = tabelaHash->bucket[indice];
     tabelaHash->bucket[indice] = novo;
     return ret;
@@ -95,7 +108,7 @@ int remover_aluno(uint32_t matricula, tabelaHash_t* tabelaHash)
         return 0;
     }
 
-    // faz a manupulçao de ponteiros
+    // faz a manipulçao de ponteiros
     no_t* aux2 = aux->prox;
     aux->prox = aux2->prox;
     // libera o ponteiro
@@ -122,9 +135,11 @@ no_t *atualizar_aluno(aluno_t aluno, tabelaHash_t *tabelaHash)
 
 void liberar_tabela(tabelaHash_t *tabelaHash)
 {
+    no_t *aux;
     for (int i = 0; i < tabelaHash->tamanho; i++) {
+        aux = tabelaHash->bucket[i];
         while (tabelaHash->bucket[i]) {
-            no_t *aux = tabelaHash->bucket[i];
+            aux = tabelaHash->bucket[i];
             tabelaHash->bucket[i] = tabelaHash->bucket[i]->prox;
             free(aux->dado.nome);
             free(aux->dado.curso);
@@ -132,14 +147,16 @@ void liberar_tabela(tabelaHash_t *tabelaHash)
             free(aux);
         }
     }
+    free(tabelaHash->bucket);
 }
 
 void amostrar_tabela(tabelaHash_t *tabelaHash)
 {
+    no_t *aux;
     for (int i = 0; i < tabelaHash->tamanho; i++) {
-        no_t* aux = tabelaHash->bucket[i];
+        aux = tabelaHash->bucket[i];
         // esse if impede que buckets vasios sejam imprimidos
-        if (!aux)
+        if (aux == NULL)
             continue;
         printf("\n========-bucket [%d]-========\n", i);
         while (aux) {
@@ -164,10 +181,12 @@ char *allocar_string(char *string)
 void alterar_tamanho(int tamanho, tabelaHash_t *tabela)
 {
     tabelaHash_t nova = inicializar_tabelaHash(tamanho);
+    no_t *aux;
+    size_t indice;
     for (int i = 0; i < tabela->tamanho; i++) {
-        no_t *aux = tabela->bucket[i];
+        aux = tabela->bucket[i];
         while (aux) {
-            size_t indice = hash(aux->dado.mat, tamanho);
+            indice = hash(aux->dado.mat, tamanho);
             tabela->bucket[i] = aux->prox;
             aux->prox = nova.bucket[indice];
             nova.bucket[indice] = aux;
@@ -176,4 +195,31 @@ void alterar_tamanho(int tamanho, tabelaHash_t *tabela)
     }
     free(tabela->bucket);
     *tabela = nova;
+}
+
+void rand_dados(int num_entradas, int *colisoes, int *alunos, tabelaHash_t *tabelaHash)
+{
+   srand(time(NULL)); 
+   aluno_t novo;
+   int data;
+   char buf[256];
+   for (int i = 0; i < num_entradas; i++) {
+       data = (rand() % 1000000000) + 1;
+       snprintf(buf, 256, "%d", data);
+       novo.mat = data;
+       novo.nome = allocar_string(buf);
+       novo.curso = allocar_string(buf);
+       novo.periodo = allocar_string(buf);
+       int ret = inserir_aluno(novo, tabelaHash);
+       if (!ret) {
+           free(novo.nome);
+           free(novo.curso);
+           free(novo.periodo);
+       } else {
+           ++(*alunos);
+       }
+       if (ret == 2) {
+           ++(*colisoes);
+       }
+   }
 }
