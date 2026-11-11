@@ -20,6 +20,7 @@ int main(void)
         printf("6: atualizar aluno\n");
         printf("7: remover aluno\n");
         printf("8: apagar tabela\n");
+        printf("9: alterar tamanho da tabela\n");
         printf("opção: ");
         scanf("%d", &opt);
         printf("===================================\n");
@@ -68,11 +69,16 @@ int main(void)
             }
 
             aluno_t novo;
+            novo.mat = 0;
             char string[256];
-            printf("dados do novo aluno\n");
-            printf("matricula: ");
-            scanf("%d", &novo.mat);
-            getchar();
+            while (novo.mat <= 0) {
+                printf("dados do novo aluno\n");
+                printf("matricula: ");
+                scanf("%d", &novo.mat);
+                getchar();
+                if (novo.mat <= 0)
+                    printf("matricula não poder ser 0 ou negativa");
+            }
 
             printf("nome: ");
             fgets(string, 256, stdin);
@@ -158,7 +164,20 @@ int main(void)
             printf("--------------\n");
             liberar_tabela(&tabelaHash);
             printf("tabela apagada\n");
+            tabelaIni_f = 0;
             printf("--------------\n");
+            break;
+        }
+
+        case 9: {
+            if (!tabelaIni_f) {
+                printf("tabela não iniciada\n");
+                break;
+            }
+            int tam;
+            printf("novo tamanho: ");
+            scanf(" %d", &tam);
+            alterar_tamanho(tam, &tabelaHash);
         }
 
         default:
