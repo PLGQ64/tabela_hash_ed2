@@ -56,6 +56,10 @@ int main(void)
         }
 
         case 3: {
+            if (!tabelaIni_f) {
+                printf("tabela não inicializada\n");
+                break;
+            }
             amostrar_tabela(&tabelaHash);
             break;
         }
@@ -69,6 +73,10 @@ int main(void)
         }
 
         case 5: {
+            if (!tabelaIni_f) {
+                printf("tabela não inicializada\n");
+                break;
+            }
             uint32_t mat;
             clock_t start, end;
             printf("------------------------------\n");
@@ -145,6 +153,10 @@ int main(void)
         }
 
         case 7: {
+            if (!tabelaIni_f) {
+                printf("tabela não inicializada\n");
+                break;
+            }
             aluno_t novo;
             printf("matricula do aluno a ser atualizado: ");
             scanf("%d", &novo.mat);
@@ -194,6 +206,10 @@ int main(void)
         }
 
         case 9: {
+            if (!tabelaIni_f) {
+                printf("tabela não inicializada\n");
+                break;
+            }
             clock_t start, end;
             printf("--------------\n");
             start = clock();

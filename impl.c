@@ -1,11 +1,4 @@
 #include "impl.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <threads.h>
-#include <time.h>
 
 
 tabelaHash_t inicializar_tabelaHash(size_t tamanho)
@@ -68,10 +61,11 @@ int inserir_aluno(aluno_t aluno, tabelaHash_t* tabelaHash)
         return 0;
     }
 
-    novo->dado.mat = aluno.mat;
-    novo->dado.nome = aluno.nome;
-    novo->dado.curso = aluno.curso;
-    novo->dado.periodo = aluno.periodo;
+    // novo->dado.mat = aluno.mat;
+    // novo->dado.nome = aluno.nome;
+    // novo->dado.curso = aluno.curso;
+    // novo->dado.periodo = aluno.periodo;
+    novo->dado = aluno;
     novo->prox = tabelaHash->bucket[indice];
     tabelaHash->bucket[indice] = novo;
     return ret;

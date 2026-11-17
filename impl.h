@@ -15,24 +15,22 @@ typedef struct {
 
 typedef struct no {
     aluno_t dado;
-    struct no* prox;
+    struct no *prox;
 } no_t;
 
 typedef struct {
     size_t tamanho;
-    no_t** bucket;
+    no_t **bucket;
 } tabelaHash_t;
-
 
 tabelaHash_t inicializar_tabelaHash(size_t tamanho);
 size_t hash(uint32_t matricula, size_t tamanho);
-no_t* busca_aluno(uint32_t matricula, tabelaHash_t* tabelaHash);
-int inserir_aluno(aluno_t aluno, tabelaHash_t* tabelaHash);
-int remover_aluno(uint32_t matricula, tabelaHash_t* tabelaHash);
+no_t *busca_aluno(uint32_t matricula, tabelaHash_t *tabelaHash);
+int inserir_aluno(aluno_t aluno, tabelaHash_t *tabelaHash);
+int remover_aluno(uint32_t matricula, tabelaHash_t *tabelaHash);
 no_t *atualizar_aluno(aluno_t aluno, tabelaHash_t *tabelaHash);
 void liberar_tabela(tabelaHash_t *tabelaHash);
 void amostrar_tabela(tabelaHash_t *tabelaHash);
 char *allocar_string(char *string);
 void alterar_tamanho(int tamanho, tabelaHash_t *tabela);
 void rand_dados(int num_entradas, int *colisoes, int *alunos, tabelaHash_t *tabelaHash);
-
